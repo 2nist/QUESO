@@ -1,0 +1,14 @@
+{
+  "name": "queso-serve",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "node --watch index.mjs",
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "@fastify/static": "^7.0.2",
+    "fastify": "^4.28.1"
+  }
+}

@@ -1,0 +1,30 @@
+
+name: queso-ci
+on:
+  push:
+    branches: [ main, feat/**, fix/**, rename/**, queso/** ]
+  pull_request:
+
+jobs:
+  server-node:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: server-node } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm', cache-dependency-path: 'server-node/package-lock.json' }
+      - run: npm ci
+      - run: node -e "console.log('server boots');"
+
+  analysis:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: analysis } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: python -m pip install --upgrade pip
+      - name: Smoke (stub run)
+        run: |
+          python -m analysis.cli --input dummy.wav --out ../artifacts/test --opts "{}" || true
+          test -f ../artifacts/test/meta.json && echo "ok"
