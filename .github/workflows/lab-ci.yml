@@ -28,3 +28,5 @@ jobs:
           python -m pip install -r analysis/requirements.txt
       - name: Run Python tests
         run: python -m pytest analysis/tests/test_pipeline.py -q
+      - name: Validate lab routes
+        run: node server-node/lab/validate_routes.mjs

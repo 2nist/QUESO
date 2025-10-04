@@ -28,6 +28,11 @@
     examples = await r.json()
   }
 
+  import ChordPalette from './lib/ChordPalette.svelte'
+  import RhythmPads from './lib/RhythmPads.svelte'
+
+  let scene = null
+
   async function runAnalyze() {
     const body = { input: input || examples.youtube[0] || examples.local[0], opts: { sections: true, chords: true, tempo: true, lyrics: true } }
     const r = await fetch('/api/analyze', { method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify(body) })
@@ -65,19 +70,39 @@
   <div class="card">
     <h3>Input & Options</h3>
     <label>Input URL or local path</label>
-    <input bind:value={input} placeholder={examples.youtube[0] || examples.local[0] || ''} style="width:100%" />
-    <div style="margin-top:.5rem">
+  <input bind:value={input} placeholder={examples.youtube[0] || examples.local[0] || ''} style="inline-size:100%" />
+  <div style="margin-block-start:.5rem">
       <button on:click={runAnalyze}>Run Analysis</button>
     </div>
   </div>
 
   <div class="card">
     <h3>Status & Logs</h3>
-    <pre style="max-height:240px;overflow:auto">{logs}</pre>
+  <pre style="max-block-size:240px;overflow:auto">{logs}</pre>
   </div>
 
   <div class="card">
     <h3>Section Map (preview)</h3>
     <p>Sections & chord badges will be visible here once analysis completes.</p>
+    {#if scene}
+      <div><strong>Scene:</strong> {scene.title} — {scene.tempo} BPM</div>
+      <ChordPalette {chords} on:paint={(e) => console.log('paint', e.detail)} />
+      <RhythmPads tempo={scene.tempo || 120} pattern={(scene.drums && scene.drums.pattern) || 'x..x..x..x..'} />
+      <div style="margin-block-start:.5rem">
+        <button on:click={() => downloadScene()}>Export scene JSON</button>
+      </div>
+    {/if}
   </div>
+
+  <script>
+    async function downloadScene() {
+      if (!scene) return
+      const a = document.createElement('a')
+      const blob = new Blob([JSON.stringify(scene, null, 2)], { type: 'application/json' })
+      a.href = URL.createObjectURL(blob)
+      a.download = (scene.title || 'scene') + '.json'
+      a.click()
+    }
+    let chords = []
+  </script>
 {/if}
