@@ -21,3 +21,22 @@ export function sendNoteOff(output, note = 60, channel = 0) {
   const status = 0x80 | (channel & 0x0f)
   output.send([status, note & 0x7f, 0x40])
 }
+
+export async function getMidiInputs() {
+  if (!navigator.requestMIDIAccess) return []
+  try {
+    const access = await navigator.requestMIDIAccess()
+    const ins = []
+    for (const inp of access.inputs.values()) ins.push(inp)
+    return ins
+  } catch (e) {
+    return []
+  }
+}
+
+export function setMidiListener(input, cb) {
+  if (!input || typeof cb !== 'function') return () => {}
+  const handler = (ev) => cb(ev.data)
+  input.addEventListener('midimessage', handler)
+  return () => input.removeEventListener('midimessage', handler)
+}

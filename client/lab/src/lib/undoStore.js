@@ -23,5 +23,7 @@ export function createUndoStore(initial = null) {
       return present
     },
     clear() { past = []; future = []; present = initial }
+    ,
+    history() { return { past: past.length, future: future.length } }
   }
 }
