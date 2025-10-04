@@ -1,68 +1,112 @@
-# QUESO Foundry CLI
-import argparse, json, sys
+# analysis/cli.py
+# Minimal QUESO CLI that wraps your legacy src/main.py `process()` and
+# keeps meta.json updated so the UI can poll /api/status.
+
+from __future__ import annotations
+import argparse, json, sys, time, threading, traceback, importlib
 from pathlib import Path
+from typing import Any, Dict
 
-from .queso_foundry.progress import MetaProgress
-from .queso_foundry.pipeline import run_pipeline
+PRODUCT = "queso"
+SCHEMA  = "queso-artifacts@1"
 
+def _read_json_arg(maybe_json: str) -> Dict[str, Any]:
+    """Accept either a JSON string or a path to a JSON file."""
+    s = (maybe_json or "").strip()
+    if not s:
+        return {}
+    p = Path(s)
+    if p.exists() and p.is_file():
+        return json.loads(p.read_text(encoding="utf-8"))
+    return json.loads(s)
 
-def _deep_merge(a: dict, b: dict) -> dict:
-    out = dict(a)
-    for k, v in (b or {}).items():
-        if isinstance(v, dict) and isinstance(out.get(k), dict):
-            out[k] = _deep_merge(out[k], v)
-        else:
-            out[k] = v
-    return out
+class MetaWriter:
+    def __init__(self, out_dir: Path, base: Dict[str, Any]) -> None:
+        self.path = out_dir / "meta.json"
+        self.meta = dict(base)
+        self._lock = threading.Lock()
+        self._alive = True
+        self._hb = threading.Thread(target=self._heartbeat, daemon=True)
+        self._hb.start()
 
+    def _heartbeat(self) -> None:
+        # Touch "updated" field so the UI can see liveness while process() is running.
+        while self._alive:
+            with self._lock:
+                self.meta["updated"] = time.time()
+                self.path.write_text(json.dumps(self.meta), encoding="utf-8")
+            time.sleep(1.0)
 
-def _load_config(config_arg: str | None) -> dict:
-    # Order of precedence: provided path > analysis/config.json > analysis/config.default.json
-    paths = []
-    if config_arg:
-        paths.append(Path(config_arg))
-    root = Path(__file__).resolve().parent.parent
-    paths.append(root / 'analysis' / 'config.json')  # when run from repo root
-    paths.append(root / 'config.json')               # when run from analysis pkg
-    paths.append(root / 'analysis' / 'config.default.json')
-    paths.append(root / 'config.default.json')
+    def write(self, **fields: Any) -> None:
+        with self._lock:
+            self.meta.update(fields)
+            self.meta["updated"] = time.time()
+            self.path.write_text(json.dumps(self.meta), encoding="utf-8")
 
-    cfg = {}
-    for p in paths:
-        if p.exists():
-            try:
-                cfg = _deep_merge(cfg, json.loads(p.read_text(encoding='utf-8')))
-            except Exception:
-                pass
-    return cfg
+    def stop(self) -> None:
+        self._alive = False
+        # one last flush
+        with self._lock:
+            self.meta["updated"] = time.time()
+            self.path.write_text(json.dumps(self.meta), encoding="utf-8")
 
+def main() -> int:
+    ap = argparse.ArgumentParser(description="QUESO analyze (wraps src.main.process)")
+    ap.add_argument("--input", required=True, help="file path or URL")
+    ap.add_argument("--out", required=True, help="artifacts output directory")
+    ap.add_argument("--opts", default="{}", help="JSON string or path to JSON file")
+    args = ap.parse_args()
 
-def main():
-    p = argparse.ArgumentParser(description='QUESO analyze')
-    p.add_argument('--input', required=True)
-    p.add_argument('--out', required=True)
-    p.add_argument('--opts', default='{}')
-    p.add_argument('--config', default=None, help='Path to JSON config with adapter tuning')
-    args = p.parse_args()
+    input_path = args.input
+    out_dir = Path(args.out).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    opts: Dict[str, Any] = _read_json_arg(args.opts)
 
-    out = Path(args.out)
-    out.mkdir(parents=True, exist_ok=True)
+    base_meta = {
+        "product": PRODUCT,
+        "schema": SCHEMA,
+        "input": input_path,
+        "opts": opts,
+        "started": time.time(),
+        "progress": 0,
+        "phase": "init",
+        "status": "running",
+    }
+    meta = MetaWriter(out_dir, base_meta)
 
-    # merge config and opts
-    base_cfg = _load_config(args.config)
-    cli_opts = json.loads(args.opts)
-    opts = _deep_merge(base_cfg, cli_opts)
+    # Log helper: prints (for /api/logs) and also appends to meta.log (optional).
+    def log(msg: str) -> None:
+        print(msg, flush=True)
 
-    meta = MetaProgress(out, input_path=args.input, opts=opts)
     try:
-        run_pipeline(args.input, out, opts, meta)
-        meta.done()
+        # Resolve your legacy orchestrator
+        mod = importlib.import_module("src.main")
+        if not hasattr(mod, "process"):
+            raise AttributeError("src.main.process not found")
+
+        meta.write(progress=5, phase="starting", status="running")
+        log("[QUESO] starting process()")
+
+        # Optional: seed/cancel hooks could be read from opts
+        # (e.g., opts.get('seed'), etc). Keep it minimal for now.
+
+        # Call your real pipeline
+        mod.process(input_path, str(out_dir), opts)
+
+        # If your process() writes some artifacts progressively, we keep HB alive.
+        meta.write(progress=100, phase="done", status="done", ended=time.time())
+        log("[QUESO] done")
         return 0
+
     except Exception as e:
-        meta.fail(e)
-        print(f'[error] {e}', file=sys.stderr)
+        tb = traceback.format_exc(limit=6)
+        meta.write(status="failed", error=str(e), traceback=tb, phase="error", ended=time.time())
+        print(f"[QUESO][error] {e}", file=sys.stderr, flush=True)
+        print(tb, file=sys.stderr, flush=True)
         return 1
 
+    finally:
+        meta.stop()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     raise SystemExit(main())
