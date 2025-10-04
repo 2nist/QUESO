@@ -36,6 +36,7 @@
   import ControlsPanel from "./lib/ControlsPanel.svelte";
   import RhythmPads from "./lib/RhythmPads.svelte";
   import SectionMap from "./lib/SectionMap.svelte";
+  import { createUndoStore } from "./lib/undoStore.js";
 
   let scene = null;
   let sections = [];
@@ -47,6 +48,11 @@
     lyrics: true,
     drums: true,
   };
+  // Undo/redo for scene edits
+  const undo = createUndoStore({ scene: null });
+  let canUndo = false;
+  let canRedo = false;
+  let selectedChord = null;
 
   async function runAnalyze() {
     const body = {
@@ -118,10 +124,51 @@
         });
       scene.chords = chords;
       scene.sections = sections;
+      // seed undo history with the initial scene state
+      undo.push({ scene: JSON.parse(JSON.stringify(scene)) });
+      canUndo = true;
     } catch (e) {
       console.warn("failed to load artifacts", e);
     }
   }
+
+  function pushSceneState() {
+    if (!scene) return;
+    undo.push({ scene: JSON.parse(JSON.stringify(scene)) });
+    canUndo = true;
+    canRedo = false;
+  }
+
+  function doUndo() {
+    const st = undo.undo();
+    if (st && st.scene) {
+      scene = st.scene;
+      chords = scene.chords || [];
+      sections = scene.sections || [];
+    }
+    canRedo = true;
+    canUndo = !!undo && !!undo.get();
+  }
+
+  function doRedo() {
+    const st = undo.redo();
+    if (st && st.scene) {
+      scene = st.scene;
+      chords = scene.chords || [];
+      sections = scene.sections || [];
+    }
+    canUndo = !!undo && !!undo.get();
+  }
+
+  import { onMount, onDestroy } from 'svelte'
+  onMount(() => {
+    const keyHandler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); doUndo() }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'Z'))) { e.preventDefault(); doRedo() }
+    }
+    window.addEventListener('keydown', keyHandler)
+    onDestroy(() => window.removeEventListener('keydown', keyHandler))
+  })
 </script>
 
 {#if !entered}
@@ -172,18 +219,16 @@
           if (selectedChord) {
             chords.push({ start: t, end: t + 4, label: selectedChord });
             scene.chords = chords;
+            pushSceneState();
           }
         }}
       />
       <ChordPalette
         on:select={(e) => (selectedChord = e.detail.chord)}
         on:paint={(e) => {
-          chords.push({
-            start: e.detail.start,
-            end: e.detail.start + 4,
-            label: e.detail.label,
-          });
+          chords.push({ start: e.detail.start, end: e.detail.start + 4, label: e.detail.label });
           scene.chords = chords;
+          pushSceneState();
         }}
       />
       <RhythmPads
@@ -196,6 +241,8 @@
       />
       <div style="margin-block-start:.5rem">
         <button on:click={() => downloadScene()}>Export scene JSON</button>
+        <button on:click={doUndo} disabled={!canUndo} style="margin-inline-start:.5rem">Undo</button>
+        <button on:click={doRedo} disabled={!canRedo} style="margin-inline-start:.25rem">Redo</button>
       </div>
       <div style="margin-block-start:.5rem">
         <h4>Placed chords</h4>
@@ -207,7 +254,9 @@
                 on:click={() => {
                   chords.splice(i, 1);
                   scene.chords = chords;
-                }}>Remove</button
+                  pushSceneState();
+                }}
+              >Remove</button>
               >
             </li>
           {/each}
@@ -227,7 +276,7 @@
       a.download = (scene.title || "scene") + ".json";
       a.click();
     }
-    let chords = [];
+    
   </script>
 {/if}
 
