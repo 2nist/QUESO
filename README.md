@@ -1,7 +1,9 @@
 
-# webrail
+# Queso
 
-Local-first **song navigator**: rails (chords / lyrics / sections / stems), tight transport, no DAW clutter.
+**Q**uick **U**tility for the **E**xtraction of **S**ong **O**bjects
+
+A full-stack application for musical analysis and visualization.
 
 This starter gives you:
 - **client/** – Vite + Svelte (TS), COOP/COEP headers for AudioWorklet & SharedArrayBuffer

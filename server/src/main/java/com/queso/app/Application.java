@@ -1,5 +1,5 @@
 
-package com.webrail.app;
+package com.queso.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

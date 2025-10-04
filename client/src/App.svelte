@@ -12,8 +12,8 @@
 <div class="min-h-dvh bg-background text-foreground">
   <div class="mx-auto max-w-4xl p-6">
     <header class="flex items-center gap-3 mb-6">
-      <img src="/logo.svg" alt="webrail" width="40" height="40" />
-      <h1 class="text-2xl font-bold font-sans">webrail</h1>
+      <img src="/logo.svg" alt="Queso" width="40" height="40" />
+      <h1 class="text-2xl font-bold font-sans">Queso</h1>
       <button 
         class="ml-auto rounded-md border border-border px-3 py-1 hover:bg-accent hover:text-accent-foreground transition-colors" 
         on:click={toggleDark}
@@ -43,7 +43,7 @@
 
       <!-- Design tokens demo -->
       <div class="rounded-lg border border-border bg-card text-card-foreground shadow-sm p-6">
-        <h2 class="text-xl font-semibold mb-2">webrail UI tokens</h2>
+        <h2 class="text-xl font-semibold mb-2">Queso UI tokens</h2>
         <p class="text-sm text-muted-foreground mb-4">Tailwind utilities mapped to your OKLCH vars.</p>
 
         <div class="flex flex-wrap gap-3 mb-4">
