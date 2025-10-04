@@ -42,4 +42,11 @@ def run_pipeline(input_path: str, out_dir: Path, opts: Dict[str,Any], meta: Meta
     # lyrics.lrc/.srt and word-level LRC are already written by the adapter
     meta.step(92, phase="lyrics")
 
+    # drums MIDI generation when requested via opts
+    if meta.is_cancelled():
+        return
+    if opts.get("drums"):
+        meta.step(95, phase="drums")
+        A.drums(input_path, opts)
+
     meta.step(99, phase="finalize")

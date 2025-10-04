@@ -10,8 +10,26 @@ BACKEND_PATH = os.environ.get("QUESO_BACKEND_PATH")
 if BACKEND_PATH and BACKEND_PATH not in sys.path:
     sys.path.insert(0, BACKEND_PATH)
 
+_ADAPTER_ROOT = Path(__file__).resolve().parents[3]
+_YT2RPR_SRC = _ADAPTER_ROOT / "external" / "yt2rpr" / "src"
+if _YT2RPR_SRC.exists():
+    parent = str(_YT2RPR_SRC.parent)
+    if parent not in sys.path:
+        sys.path.insert(0, parent)
+    src_path = str(_YT2RPR_SRC)
+    if src_path not in sys.path:
+        sys.path.insert(0, src_path)
+
 def _import(module: str):
-    return importlib.import_module(module)
+    try:
+        return importlib.import_module(module)
+    except ImportError:
+        if not module.startswith("src."):
+            try:
+                return importlib.import_module(f"src.{module}")
+            except ImportError:
+                pass
+        raise
 
 def _resolve(module: str, candidates: List[str]) -> Callable:
     mod = _import(module)
@@ -254,9 +272,24 @@ def chords_py(input_path: str, opts: Dict[str,Any]):
 
 def lyrics_py(input_path: str, opts: Dict[str,Any]):
     fn = _resolve("main", ["run_whisper"])  # writes lyrics.lrc
-    fn(input_path, opts["out_dir"]) 
+    fn(input_path, opts["out_dir"])
     _try_write_word_level_lrc(Path(opts["out_dir"]))
     return _read_lrc_or_srt(Path(opts["out_dir"]))
+
+def drums_py(input_path: str, opts: Dict[str, Any]):
+    out_dir = Path(opts["out_dir"]).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    Song = _resolve("song_object", ["Song"])
+    load_audio = _resolve("audio_tools", ["load_audio"])
+    extract = _resolve("drum_tools", ["extract_drums_midi"])
+
+    y, sr = load_audio(input_path, sr=44100, mono=False)
+    song = Song()
+    song.metadata["local_path"] = input_path
+
+    tuning_priors = opts.get("tuning_priors") or {}
+    return extract(y, sr, str(out_dir), song, tuning_priors)
 
 def tempo_and_beats_cli(input_path: str, opts: Dict[str,Any]):
     out_dir = Path(opts["out_dir"]); out_dir.mkdir(parents=True, exist_ok=True)
@@ -305,14 +338,19 @@ def lyrics_cli(input_path: str, opts: Dict[str,Any]):
     if rows: return rows
     raise RuntimeError(p.stderr or p.stdout or "lyrics.lrc/.srt missing")
 
-def tempo_and_beats(input_path: str, opts: Dict[str,Any]): 
+def tempo_and_beats(input_path: str, opts: Dict[str,Any]):
     return (tempo_and_beats_py if USE=='py' else tempo_and_beats_cli)(input_path, opts)
 
-def sections(input_path: str, opts: Dict[str,Any]): 
+def sections(input_path: str, opts: Dict[str,Any]):
     return (sections_py if USE=='py' else sections_cli)(input_path, opts)
 
-def chords(input_path: str, opts: Dict[str,Any]): 
+def chords(input_path: str, opts: Dict[str,Any]):
     return (chords_py if USE=='py' else chords_cli)(input_path, opts)
 
-def lyrics(input_path: str, opts: Dict[str,Any]): 
+def lyrics(input_path: str, opts: Dict[str,Any]):
     return (lyrics_py if USE=='py' else lyrics_cli)(input_path, opts)
+
+def drums(input_path: str, opts: Dict[str, Any]):
+    if USE != 'py':
+        raise RuntimeError("CLI drums mode not implemented; set QUESO_ADAPTER_MODE=py")
+    return drums_py(input_path, opts)

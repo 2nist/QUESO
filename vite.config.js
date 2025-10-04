@@ -1,6 +1,7 @@
+// vite.config.js
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import path from 'node:path'
 import { defineConfig } from 'vite'
+import path from 'node:path'
 
 export default defineConfig({
   root: path.resolve('src/svelte_app'),

@@ -1,7 +1,7 @@
-import cors from 'cors'
 import express from 'express'
-import { spawn } from 'node:child_process'
+import cors from 'cors'
 import { randomUUID } from 'node:crypto'
+import { spawn } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -24,6 +24,7 @@ app.use('/artifacts', express.static(ARTIFACTS_ROOT, { acceptRanges: true }))
 // In-memory job table
 /** @type {Map<string,{proc:import('node:child_process').ChildProcess, slug:string, outDir:string, status:string, started:number, ended?:number}>} */
 const JOBS = new Map()
+app.jobs = JOBS // Expose jobs for testing
 
 const PYTHON = process.env.PYTHON || 'python'
 const PORT = process.env.PORT || 8080
@@ -45,7 +46,7 @@ app.post('/api/analyze', (req, res) => {
 
   const proc = spawn(PYTHON, args, { windowsHide: true, stdio: ['ignore','pipe','pipe'] })
   const job = { proc, slug, outDir, status: 'running', started: Date.now() }
-  JOBS.set(jobId, job)
+  app.jobs.set(jobId, job)
 
   // Optional: persist a rolling log file per job
   const logFile = path.join(outDir, 'job.log')
@@ -62,7 +63,7 @@ app.post('/api/analyze', (req, res) => {
 })
 
 app.get('/api/status/:id', (req, res) => {
-  const job = JOBS.get(req.params.id)
+  const job = app.jobs.get(req.params.id)
   if (!job) return res.status(404).json({ error: 'no such job' })
 
   let meta = {}
@@ -84,6 +85,11 @@ app.get('/api/status/:id', (req, res) => {
   })
 })
 
-app.listen(PORT, () => {
-  console.log(`QUESO API running at http://localhost:${PORT}`)
-})
+let server;
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(PORT, () => {
+    console.log(`QUESO API running at http://localhost:${PORT}`)
+  })
+}
+
+export { app, server }
