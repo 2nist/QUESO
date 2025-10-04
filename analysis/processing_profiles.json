@@ -1,0 +1,17 @@
+{
+  "default": {
+    "novelty_smooth": 0.5,
+    "peak_prominence": 0.35,
+    "min_gap_bars": 4
+  },
+  "aggressive": {
+    "novelty_smooth": 0.3,
+    "peak_prominence": 0.25,
+    "min_gap_bars": 2
+  },
+  "conservative": {
+    "novelty_smooth": 0.7,
+    "peak_prominence": 0.5,
+    "min_gap_bars": 6
+  }
+}

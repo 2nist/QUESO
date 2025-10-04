@@ -1,0 +1,8 @@
+{
+  "chord_enharmonic": "sharp",
+  "sections_profile": "default",
+  "sections_bar_align": true,
+  "sections_spectral_validate": true,
+  "max_sections": 7,
+  "min_section_duration": 4.0
+}

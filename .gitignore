@@ -1,4 +1,3 @@
-
 node_modules/
 dist/
 .build/
@@ -10,3 +9,7 @@ build/
 .vscode/
 .idea/
 .env
+
+# Large binary files - FFmpeg
+external/downloads/ffmpeg-release-essentials.zip
+external/ffmpeg/ffmpeg-8.0-essentials_build/bin/*.exe

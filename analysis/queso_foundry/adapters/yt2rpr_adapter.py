@@ -1,9 +1,14 @@
 from __future__ import annotations
-import os, json, shlex, subprocess, importlib
+import os, sys, json, shlex, subprocess, importlib
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Callable
 
 USE = os.environ.get("QUESO_ADAPTER_MODE", "py").lower()
+
+# Allow external backend path injection (e.g., external/yt2rpr/src)
+BACKEND_PATH = os.environ.get("QUESO_BACKEND_PATH")
+if BACKEND_PATH and BACKEND_PATH not in sys.path:
+    sys.path.insert(0, BACKEND_PATH)
 
 def _import(module: str):
     return importlib.import_module(module)
@@ -85,7 +90,7 @@ def _load_thresholds_profile(opts: Dict[str,Any]) -> Dict[str, Any]:
 
 def _read_lrc_or_srt(out_dir: Path):
     lrc = out_dir / "lyrics.lrc"
-    if lrc.exists():
+    if (lrc.exists()):
         rows=[]
         for line in lrc.read_text(encoding='utf-8').splitlines():
             line=line.strip()
@@ -97,7 +102,7 @@ def _read_lrc_or_srt(out_dir: Path):
             rows.append((t, txt.strip()))
         return rows
     srt = out_dir / "video_subtitles.srt"
-    if srt.exists():
+    if (srt.exists()):
         import re
         rows=[]
         blocks = re.split(r'\n\s*\n', srt.read_text(encoding='utf-8').strip(), flags=re.M)
@@ -159,44 +164,96 @@ def _try_write_word_level_lrc(out_dir: Path) -> bool:
     return False
 
 def tempo_and_beats_py(input_path: str, opts: Dict[str,Any]):
-    fn = _resolve("src.analysis_service", ["analyze_tempo_beats","estimate_tempo"])
-    cb = opts.get('on_progress')
+    # Use yt2rpr analysis_service.analyze_tempo_beats
+    fn = _resolve("src.analysis_service", ["analyze_tempo_beats"])  # returns dict
+    info = fn(input_path) or {}
+    bpm = float(info.get("bpm") or info.get("tempo_bpm") or 0.0)
+    beats = [float(x) for x in (info.get("beat_times") or info.get("normalized_beat_times") or [])]
+    # optional progress callback
+    cb = opts.get("on_progress")
     if callable(cb):
         try:
-            cb(0.1)
+            cb(1.0)
         except Exception:
             pass
-    bpm, beats = fn(input_path, opts.get("beats_per_bar"), opts.get("tuning_priors"), opts.get("debug", False))
-    if callable(cb):
-        try:
-            cb(0.9)
-        except Exception:
-            pass
-    return float(bpm), [float(x) for x in beats]
+    return bpm, beats
 
 def sections_py(input_path: str, opts: Dict[str,Any]):
-    fn = _resolve("src.section_tools", ["estimate_sections"])
+    # Use section_tools.estimate_sections(song, out_dir, ...)
+    out_dir = Path(opts["out_dir"]).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Build minimal Song object with metadata.local_path
+    Song = getattr(_import("src.song_object"), "Song")
+    song = Song()
+    song.metadata["local_path"] = input_path
+
+    fn = _resolve("src.section_tools", ["estimate_sections"])  # writes sections.lab
+
+    # thresholds profile and options
     thresholds = _load_thresholds_profile(opts)
-    rows = fn(
-        song=opts.get("song"),
-        out_dir=opts["out_dir"],
-        max_sections=opts.get("max_sections", 7),
-        chord_lab_path=opts.get("chord_lab_path"),
-        min_section_duration=opts.get("min_section_duration", 4.0),
-        bar_align=opts.get("sections_bar_align", True),
-        spectral_validate=opts.get("sections_spectral_validate", True),
-        validation_thresholds=thresholds,
+    if isinstance(opts.get("sections_thresholds"), dict):
+        thresholds = dict(thresholds or {}) | dict(opts["sections_thresholds"])  # allow override
+
+    max_sections = int(opts.get("max_sections", opts.get("sections_max", 12)))
+    min_len = float(opts.get("min_section_duration", opts.get("sections_min_duration", 6.0)))
+    bar_align = bool(opts.get("bar_align", opts.get("bar_align_sections", False)))
+    spectral_validate = bool(opts.get("spectral_validate", opts.get("sections_spectral_validate", True)))
+
+    chord_lab = out_dir / "chords.lab"
+    chord_lab_path = str(chord_lab) if chord_lab.exists() else None
+
+    _ = fn(
+        song,
+        str(out_dir),
+        max_sections=max_sections,
+        chord_lab_path=chord_lab_path,
+        min_section_duration=min_len,
+        bar_align=bar_align,
+        spectral_validate=spectral_validate,
+        validation_thresholds=thresholds or None,
     )
+    lab = out_dir / "sections.lab"
+    rows: List[Tuple[float,float,str]] = []
+    if lab.exists():
+        for ln in lab.read_text(encoding="utf-8").splitlines():
+            parts = ln.strip().split()
+            if len(parts) >= 3:
+                try:
+                    s = float(parts[0]); e = float(parts[1]); label = " ".join(parts[2:]).strip()
+                except ValueError:
+                    continue
+                if label:
+                    rows.append((s,e,label))
     return _normalize_triplets(rows)
 
 def chords_py(input_path: str, opts: Dict[str,Any]):
-    fn = _resolve("src.analysis_service", ["analyze_chord_progression"])
-    rows = fn(input_path, opts.get("key_prior"), opts.get("genre_priors"), opts.get("debug", False))
+    # Use yt2rpr analysis_service.analyze_chord_progression
+    fn = _resolve("src.analysis_service", ["analyze_chord_progression"])  # returns dict with chords
+    # Genre priors/config passthrough
+    priors = opts.get("genre_priors") or {}
+    summ = fn(input_path, key_prior=None, genre_priors=priors) or {}
+    events = summ.get("chords") or []
+    rows: List[Tuple[float,float,str]] = []
+    for ev in events:
+        try:
+            s = float(ev.get("start", ev.get("start_time", 0.0)))
+            e = float(ev.get("end", ev.get("end_time", s)))
+            label = str(ev.get("label") or ev.get("chord") or "").strip()
+        except Exception:
+            continue
+        if not label:
+            continue
+        if e <= s:
+            e = s + 0.25
+        if label.upper() == "N":
+            continue
+        rows.append((s,e,label))
     enh = opts.get('chord_enharmonic', 'sharp')
     return _normalize_triplets([(s,e,_normalize_chord_label(lab, enh)) for s,e,lab in rows])
 
 def lyrics_py(input_path: str, opts: Dict[str,Any]):
-    fn = _resolve("src.main", ["run_whisper","transcribe_lyrics"])
+    fn = _resolve("src.main", ["run_whisper"])  # writes lyrics.lrc
     fn(input_path, opts["out_dir"]) 
     _try_write_word_level_lrc(Path(opts["out_dir"]))
     return _read_lrc_or_srt(Path(opts["out_dir"]))
