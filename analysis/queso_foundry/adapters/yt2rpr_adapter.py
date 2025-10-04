@@ -165,7 +165,7 @@ def _try_write_word_level_lrc(out_dir: Path) -> bool:
 
 def tempo_and_beats_py(input_path: str, opts: Dict[str,Any]):
     # Use yt2rpr analysis_service.analyze_tempo_beats
-    fn = _resolve("src.analysis_service", ["analyze_tempo_beats"])  # returns dict
+    fn = _resolve("analysis_service", ["analyze_tempo_beats"])  # returns dict
     info = fn(input_path) or {}
     bpm = float(info.get("bpm") or info.get("tempo_bpm") or 0.0)
     beats = [float(x) for x in (info.get("beat_times") or info.get("normalized_beat_times") or [])]
@@ -184,11 +184,11 @@ def sections_py(input_path: str, opts: Dict[str,Any]):
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Build minimal Song object with metadata.local_path
-    Song = getattr(_import("src.song_object"), "Song")
+    Song = getattr(_import("song_object"), "Song")
     song = Song()
     song.metadata["local_path"] = input_path
 
-    fn = _resolve("src.section_tools", ["estimate_sections"])  # writes sections.lab
+    fn = _resolve("section_tools", ["estimate_sections"])  # writes sections.lab
 
     # thresholds profile and options
     thresholds = _load_thresholds_profile(opts)
@@ -229,7 +229,7 @@ def sections_py(input_path: str, opts: Dict[str,Any]):
 
 def chords_py(input_path: str, opts: Dict[str,Any]):
     # Use yt2rpr analysis_service.analyze_chord_progression
-    fn = _resolve("src.analysis_service", ["analyze_chord_progression"])  # returns dict with chords
+    fn = _resolve("analysis_service", ["analyze_chord_progression"])  # returns dict with chords
     # Genre priors/config passthrough
     priors = opts.get("genre_priors") or {}
     summ = fn(input_path, key_prior=None, genre_priors=priors) or {}
@@ -253,7 +253,7 @@ def chords_py(input_path: str, opts: Dict[str,Any]):
     return _normalize_triplets([(s,e,_normalize_chord_label(lab, enh)) for s,e,lab in rows])
 
 def lyrics_py(input_path: str, opts: Dict[str,Any]):
-    fn = _resolve("src.main", ["run_whisper"])  # writes lyrics.lrc
+    fn = _resolve("main", ["run_whisper"])  # writes lyrics.lrc
     fn(input_path, opts["out_dir"]) 
     _try_write_word_level_lrc(Path(opts["out_dir"]))
     return _read_lrc_or_srt(Path(opts["out_dir"]))

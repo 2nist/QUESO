@@ -1,0 +1,3 @@
+[submodule "external/yt2rpr"]
+    path = external/yt2rpr
+    url = https://github.com/2nist/yt2rpr.git

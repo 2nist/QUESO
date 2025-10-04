@@ -31,7 +31,7 @@ def run_pipeline(input_path: str, out_dir: Path, opts: Dict[str,Any], meta: Meta
         return
     meta.step(50, phase="sections")
     sections = A.sections(input_path, opts)
-    write_lab_start_end(out_dir / "sections.lab", sections)
+    # sections.lab is already written by the adapter
     meta.step(72, phase="sections")
 
     # lyrics with word-level LRC when available
@@ -39,9 +39,7 @@ def run_pipeline(input_path: str, out_dir: Path, opts: Dict[str,Any], meta: Meta
         return
     meta.step(75, phase="lyrics")
     lrc_rows = A.lyrics(input_path, opts)
-    if lrc_rows:
-        write_lrc(out_dir / "lyrics.lrc", lrc_rows)
-    # word-level LRC may have been written as a side-effect by adapter
+    # lyrics.lrc/.srt and word-level LRC are already written by the adapter
     meta.step(92, phase="lyrics")
 
     meta.step(99, phase="finalize")

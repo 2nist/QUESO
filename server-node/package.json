@@ -5,10 +5,14 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "node --watch index.mjs",
-    "start": "node index.mjs"
+    "start": "node index.mjs",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "@fastify/static": "^7.0.2",
     "fastify": "^4.28.1"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0"
   }
 }
