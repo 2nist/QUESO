@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "concurrently -k -n api,web -c green,cyan \"node src/node_api_server.js\" \"vite\"",
+  "dev:lab": "cross-env LAB_MODE=1 concurrently -k -n api,web -c green,cyan \"node src/node_api_server.js\" \"vite --config client/lab/vite.config.js\"",
     "build": "vite build",
     "preview": "vite preview",
     "api": "node src/node_api_server.js",

@@ -87,9 +87,24 @@ app.get('/api/status/:id', (req, res) => {
 
 let server;
 if (process.env.NODE_ENV !== 'test') {
-  server = app.listen(PORT, () => {
-    console.log(`QUESO API running at http://localhost:${PORT}`)
-  })
+  (async () => {
+    // Conditionally mount lab routes when LAB_MODE is enabled
+    if ((process.env.LAB_MODE || '').toLowerCase() === '1' || (process.env.LAB_MODE || '').toLowerCase() === 'true') {
+      try {
+  const mod = await import('../server-node/lab/routes.mjs')
+        if (mod && typeof mod.registerLabRoutes === 'function') {
+          mod.registerLabRoutes(app)
+          console.log('Creamery Lab routes mounted (LAB_MODE enabled)')
+        }
+      } catch (e) {
+        console.warn('Failed to mount Creamery Lab routes:', e.message || e)
+      }
+    }
+
+    server = app.listen(PORT, () => {
+      console.log(`QUESO API running at http://localhost:${PORT}`)
+    })
+  })()
 }
 
 export { app, server }

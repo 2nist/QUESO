@@ -1,0 +1,12 @@
+{
+  "youtube": [
+    "https://youtu.be/xKP0aoXaQJo?si=A0L1Tp4o-UdK8C4u",
+    "https://youtu.be/QZGurhtlve8?si=3ehmEncJymHzheSF",
+    "https://youtu.be/yl3fIXaAXow?si=JgHEJ6HKaerd43RO"
+  ],
+  "local": [
+    "analysis/tests/autotest/mp3/Shotgun Willie.mp3",
+    "analysis/tests/autotest/mp3/Turn It On.mp3",
+    "analysis/tests/autotest/mp3/The White Stripes - Fell In Love With A Girl (Official Music Video).mp3"
+  ]
+}

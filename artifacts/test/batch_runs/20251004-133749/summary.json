@@ -1,0 +1,50 @@
+[
+  {
+    "input": "https://youtu.be/xKP0aoXaQJo?si=A0L1Tp4o-UdK8C4u",
+    "tag": "youtube",
+    "out_dir": "artifacts\\test\\batch_runs\\20251004-133749\\01-01-youtube",
+    "returncode": 0,
+    "status": "done",
+    "elapsed_sec": 1005.52
+  },
+  {
+    "input": "https://youtu.be/QZGurhtlve8?si=3ehmEncJymHzheSF",
+    "tag": "youtube",
+    "out_dir": "artifacts\\test\\batch_runs\\20251004-133749\\01-02-youtube",
+    "returncode": 0,
+    "status": "done",
+    "elapsed_sec": 1357.48
+  },
+  {
+    "input": "https://youtu.be/yl3fIXaAXow?si=JgHEJ6HKaerd43RO",
+    "tag": "youtube",
+    "out_dir": "artifacts\\test\\batch_runs\\20251004-133749\\01-03-youtube",
+    "returncode": 0,
+    "status": "done",
+    "elapsed_sec": 842.26
+  },
+  {
+    "input": "analysis/tests/autotest/mp3/Shotgun Willie.mp3",
+    "tag": "local",
+    "out_dir": "artifacts\\test\\batch_runs\\20251004-133749\\01-04-local",
+    "returncode": 0,
+    "status": "done",
+    "elapsed_sec": 890.91
+  },
+  {
+    "input": "analysis/tests/autotest/mp3/Turn It On.mp3",
+    "tag": "local",
+    "out_dir": "artifacts\\test\\batch_runs\\20251004-133749\\01-05-local",
+    "returncode": 0,
+    "status": "done",
+    "elapsed_sec": 1315.06
+  },
+  {
+    "input": "analysis/tests/autotest/mp3/The White Stripes - Fell In Love With A Girl (Official Music Video).mp3",
+    "tag": "local",
+    "out_dir": "artifacts\\test\\batch_runs\\20251004-133749\\01-06-local",
+    "returncode": 0,
+    "status": "done",
+    "elapsed_sec": 545.99
+  }
+]

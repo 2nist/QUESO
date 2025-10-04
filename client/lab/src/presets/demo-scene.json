@@ -1,0 +1,9 @@
+{
+  "preset": "demo-beat",
+  "scene": {
+    "title": "Demo Beat",
+    "tempo": 122,
+    "chords": [{"start":0,"end":4,"label":"C"}],
+    "drums": {"pattern":"x..x..x..x.."}
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "duration": 120.21,
+  "segments": [
+    {
+      "index": 0,
+      "start": 0.0,
+      "end": 8.36,
+      "duration": 8.36,
+      "label": "Intro",
+      "start_bar": 0,
+      "end_bar": 3,
+      "pattern_id": 0,
+      "pattern_symbol": "A",
+      "chords": [],
+      "progression_signature": null,
+      "roman_progression": [],
+      "nashville_progression": []
+    },
+    {
+      "index": 1,
+      "start": 8.36,
+      "end": 93.65,
+      "duration": 85.29,
+      "label": "Verse",
+      "start_bar": 3,
+      "end_bar": 49,
+      "pattern_id": 0,
+      "pattern_symbol": "A",
+      "chords": [],
+      "progression_signature": null,
+      "roman_progression": [],
+      "nashville_progression": []
+    },
+    {
+      "index": 2,
+      "start": 93.65,
+      "end": 113.8,
+      "duration": 20.15,
+      "label": "Verse",
+      "start_bar": 49,
+      "end_bar": 60,
+      "pattern_id": 0,
+      "pattern_symbol": "A",
+      "chords": [],
+      "progression_signature": null,
+      "roman_progression": [],
+      "nashville_progression": []
+    },
+    {
+      "index": 3,
+      "start": 113.8,
+      "end": 120.21,
+      "duration": 6.41,
+      "label": "Outro",
+      "start_bar": 60,
+      "end_bar": 60,
+      "pattern_id": 0,
+      "pattern_symbol": "A",
+      "chords": [],
+      "progression_signature": null,
+      "roman_progression": [],
+      "nashville_progression": []
+    }
+  ],
+  "pattern_consistency": {},
+  "roman_consistency": {},
+  "nashville_consistency": {},
+  "chords_attached": false,
+  "key": null,
+  "processing": {
+    "bar_align": false,
+    "spectral_validate": false,
+    "validation_thresholds": {},
+    "tempo_metadata_found": false
+  }
+}

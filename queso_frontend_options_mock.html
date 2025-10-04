@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QUESO – Options Mock</title>
+  <style>
+    :root {
+      --background: oklch(0.9761 0 0);
+      --foreground: oklch(0.2174 0.0019 106.5582);
+      --card: oklch(0.9761 0 0);
+      --card-foreground: oklch(0.2174 0.0019 106.5582);
+      --primary: oklch(0.2174 0.0019 106.5582);
+      --primary-foreground: oklch(0.9612 0 0);
+      --secondary: oklch(0.9491 0 0);
+      --secondary-foreground: oklch(0.2174 0.0019 106.5582);
+      --muted: oklch(0.9491 0 0);
+      --muted-foreground: oklch(0.5452 0 0);
+      --border: oklch(0.9006 0 0);
+      --input: oklch(0.9006 0 0);
+      --ring: oklch(0.6927 0 0);
+      --radius: 0.15rem;
+      --shadow: 0 1px 6px hsl(0 0% 0% / .29), 0 1px 2px -1px hsl(0 0% 0% / .29);
+    }
+    body { margin:0; font-family: Antonio, ui-sans-serif, system-ui; color:var(--foreground); background:var(--background); }
+    .container { max-width: 1040px; margin: 0 auto; padding: 24px; }
+    header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px; }
+    .btn { background: var(--primary); color: var(--primary-foreground); border:1px solid color-mix(in oklab, var(--primary), black 30%); padding:10px 14px; border-radius: calc(var(--radius) + 6px); cursor:pointer; }
+    .grid { display:grid; gap:16px; grid-template-columns: 1.2fr .8fr; }
+    .card { background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: calc(var(--radius) + 8px); box-shadow: var(--shadow); padding: 16px; }
+    .field { display:grid; gap:8px; margin-bottom:10px; }
+    .row { display:flex; gap:14px; align-items:center; flex-wrap: wrap; }
+    .opt { display:flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--border); border-radius: calc(var(--radius) + 6px); background: white; }
+    input[type="text"] { width:100%; padding:10px 12px; border-radius: calc(var(--radius) + 6px); border:1px solid var(--input); outline:none; }
+    input[type="text"]:focus { box-shadow: inset 0 0 0 2px var(--ring); }
+    pre { margin:0; white-space:pre-wrap; word-break:break-word; background:white; border:1px solid var(--border); border-radius: calc(var(--radius) + 6px); padding:12px; }
+    .dim { opacity:.75; font-size: 12px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 style="margin:0;">QUESO</h1>
+      <button class="btn" onclick="doAnalyze()">Start analysis</button>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <h2 style="margin:0 0 10px 0; font-size:18px;">Input</h2>
+        <div class="field">
+          <label>File path or URL</label>
+          <input id="input" type="text" placeholder="C:\music\song.wav or https://..." value="C:\music\I Want To Hold Your Hand.wav" />
+        </div>
+
+        <h2 style="margin:10px 0; font-size:18px;">What to analyze</h2>
+        <div class="row" id="what">
+          <label class="opt"><input type="checkbox" data-key="tempo" checked /> Tempo/Beatgrid</label>
+          <label class="opt"><input type="checkbox" data-key="sections" checked /> Sections</label>
+          <label class="opt"><input type="checkbox" data-key="chords" checked /> Chords</label>
+          <label class="opt"><input type="checkbox" data-key="lyrics" checked /> Lyrics</label>
+          <label class="opt"><input type="checkbox" data-key="stems" /> Stems</label>
+          <label class="opt"><input type="checkbox" data-key="drums" /> Drums</label>
+          <label class="opt"><input type="checkbox" data-key="bass" /> Bass</label>
+          <label class="opt"><input type="checkbox" data-key="melody" /> Melody</label>
+        </div>
+
+        <h2 style="margin:14px 0 8px 0; font-size:18px;">Options</h2>
+        <div class="row">
+          <label class="opt"><input type="checkbox" id="bar" checked /> Bar-align sections</label>
+          <label class="opt"><input type="checkbox" id="cpu" /> Force CPU</label>
+        </div>
+        <div class="dim" style="margin-top:8px;">Stems are heavy; enable only when needed. CPU mode is slower.</div>
+      </section>
+
+      <aside class="card">
+        <h2 style="margin:0 0 10px 0; font-size:18px;">Payload preview</h2>
+        <pre id="payload">{}</pre>
+        <div class="dim" style="margin-top:8px;">This is the body we POST to <code>/api/analyze</code>.</div>
+
+        <h2 style="margin:16px 0 10px 0; font-size:18px;">Status</h2>
+        <pre id="status">Not started.</pre>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    function gather() {
+      const input = document.getElementById('input').value.trim()
+      const opts = {}
+      document.querySelectorAll('#what input[type="checkbox"]').forEach(cb => {
+        opts[cb.dataset.key] = cb.checked
+      })
+      opts['sections_bar_align'] = document.getElementById('bar').checked
+      opts['cpu'] = document.getElementById('cpu').checked
+      return { input, opts }
+    }
+
+    function updatePreview() {
+      const { input, opts } = gather()
+      const payload = { input, opts }
+      document.getElementById('payload').textContent = JSON.stringify(payload, null, 2)
+    }
+
+    async function doAnalyze() {
+      const { input, opts } = gather()
+      if (!input) { alert('Provide an input path or URL'); return }
+      // This mock only shows what we'd send; it doesn't call the backend.
+      document.getElementById('status').textContent = 'Would POST /api/analyze with payload above.'
+    }
+
+    document.addEventListener('change', updatePreview)
+    document.addEventListener('input', updatePreview)
+    updatePreview()
+  </script>
+</body>
+</html>
