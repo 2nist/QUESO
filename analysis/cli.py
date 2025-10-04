@@ -3,7 +3,7 @@
 # keeps meta.json updated so the UI can poll /api/status.
 
 from __future__ import annotations
-import argparse, json, sys, time, threading, traceback, importlib
+import argparse, json, sys, time, threading, traceback, importlib, types
 from pathlib import Path
 from typing import Any, Dict
 
@@ -80,7 +80,19 @@ def main() -> int:
 
     try:
         # Resolve your legacy orchestrator
-        mod = importlib.import_module("src.main")
+        try:
+            mod = importlib.import_module("src.main")
+        except ModuleNotFoundError:
+            root = Path(__file__).resolve().parents[1]
+            yt2rpr_src = root / "external" / "yt2rpr" / "src"
+            if yt2rpr_src.is_dir():
+                pkg = types.ModuleType("src")
+                pkg.__path__ = [str(yt2rpr_src)]
+                sys.modules.setdefault("src", pkg)
+                sys.path.append(str(yt2rpr_src.parent))
+                mod = importlib.import_module("src.main")
+            else:
+                raise
         if not hasattr(mod, "process"):
             raise AttributeError("src.main.process not found")
 
