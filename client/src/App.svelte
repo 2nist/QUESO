@@ -14,8 +14,8 @@
     <header class="flex items-center gap-3 mb-6">
       <img src="/logo.svg" alt="Queso" width="40" height="40" />
       <h1 class="text-2xl font-bold font-sans">Queso</h1>
-      <button 
-        class="ml-auto rounded-md border border-border px-3 py-1 hover:bg-accent hover:text-accent-foreground transition-colors" 
+      <button
+        class="ml-auto rounded-md border border-border px-3 py-1 hover:bg-accent hover:text-accent-foreground transition-colors"
         on:click={toggleDark}
       >
         Toggle theme
@@ -29,8 +29,8 @@
         <p class="text-sm text-muted-foreground mb-4">
           crossOriginIsolated: <span class="font-mono font-semibold text-foreground">{iso ? 'true' : 'false'}</span>
         </p>
-        
-        <button 
+
+        <button
           class="rounded-md bg-primary px-4 py-2 text-primary-foreground shadow hover:opacity-90 transition-opacity"
           on:click={async()=>{
             const r = await fetch('/api/hello').then(r=>r.text())
