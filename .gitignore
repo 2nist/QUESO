@@ -19,3 +19,10 @@ external/ffmpeg/ffmpeg-8.0-essentials_build/bin/*.exe
 .venv/
 **/__pycache__/
 server-node/data/
+
+# Runtime artifacts produced by analysis runs
+artifacts/
+
+# Local GPU probe/debug outputs
+.gpu_probe.txt
+.gpu_smoke_test.json

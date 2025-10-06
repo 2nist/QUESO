@@ -1,1 +1,0 @@
-{"product": "queso", "schema": "queso-artifacts@1", "input": "analysis/tests/autotest/mp3/Shotgun Willie.mp3", "opts": {"sections": true, "chords": true, "tempo": true, "lyrics": true, "drums": true}, "started": 1759588275.76751, "progress": 100, "phase": "done", "status": "done", "updated": 1759589164.9027507, "ended": 1759589164.9027507}
