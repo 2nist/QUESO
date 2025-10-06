@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
   export let sections = [];
+  export let selectedIndex = null;
   export let duration = 60;
   export let chords = [];
   const dispatch = createEventDispatcher();
@@ -12,12 +13,70 @@
     const t = frac * duration;
     dispatch("place", { time: t });
   }
+
+  // selection helpers
+  let isDragging = false;
+  let dragStartTime = null;
+  let dragEndTime = null;
+  function timeToIndex(t) {
+    for (let i = 0; i < sections.length; i++) {
+      const s = sections[i];
+      if (t >= s.start && t < s.end) return i;
+    }
+    return -1;
+  }
+  function onPointerDown(e) {
+    isDragging = true;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const t = Math.max(0, Math.min(1, x / rect.width)) * duration;
+    dragStartTime = t;
+    dragEndTime = t;
+  }
+  function onPointerMove(e) {
+    if (!isDragging) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const t = Math.max(0, Math.min(1, x / rect.width)) * duration;
+    dragEndTime = t;
+  }
+  function onPointerUp(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    const a = Math.min(dragStartTime, dragEndTime);
+    const b = Math.max(dragStartTime, dragEndTime);
+    const si = timeToIndex(a);
+    const ei = timeToIndex(b);
+    if (si >= 0 && ei >= 0)
+      dispatch("selectRange", {
+        startIndex: Math.min(si, ei),
+        endIndex: Math.max(si, ei),
+      });
+    dragStartTime = dragEndTime = null;
+  }
 </script>
 
-<div class="map" on:click={clickToTime} role="region" aria-label="Section map">
-  {#each sections as s}
+<div
+  class="map"
+  on:click={clickToTime}
+  on:pointerdown={onPointerDown}
+  on:pointermove={onPointerMove}
+  on:pointerup={onPointerUp}
+  role="region"
+  aria-label="Section map"
+>
+  {#each sections as s, idx}
     <div
-      class="section"
+      class="section {idx === selectedIndex ? 'selected' : ''}"
+      role="button"
+      tabindex="0"
+      on:click={() => dispatch("select", { index: idx })}
+      on:keydown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          dispatch("select", { index: idx });
+          e.preventDefault();
+        }
+      }}
       style="inline-size: {Math.max(
         40,
         ((s.end - s.start) / Math.max(1, duration)) * 800,
@@ -45,6 +104,9 @@
     padding: 8px;
     border-radius: 6px;
     flex: 0 0 auto;
+  }
+  .section.selected {
+    outline: 2px solid #7fd07f;
   }
   .chord-badge {
     display: inline-block;

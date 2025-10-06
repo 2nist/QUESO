@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 import argparse
+import os
 import importlib
 import json
 import sys
@@ -111,12 +112,41 @@ def main() -> int:
     ap.add_argument("--input", required=True, help="file path or URL")
     ap.add_argument("--out", required=True, help="artifacts output directory")
     ap.add_argument("--opts", default="{}", help="JSON string or path to JSON file")
+    ap.add_argument("--preset", default=None, help="Analysis preset to use (e.g. low_cpu)")
     args = ap.parse_args()
 
     input_path = args.input
     out_dir = Path(args.out).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     opts: Dict[str, Any] = _read_json_arg(args.opts)
+    preset = args.preset or (os.environ.get('ANALYSIS_PRESET') or None)
+    if preset:
+        opts.setdefault('preset', preset)
+
+    # Apply preset tuning for low_cpu to reduce memory and CPU contention
+    if opts.get('preset') == 'low_cpu':
+        # Choose conservative thread counts (cap at available logical CPUs)
+        try:
+            import os as _os
+            cpu_count = max(1, int(_os.cpu_count() or 1))
+            threads = max(1, min(4, cpu_count))
+        except Exception:
+            threads = 2
+        # Set environment variables used by BLAS/MKL/OpenBLAS
+        os.environ.setdefault('OMP_NUM_THREADS', str(threads))
+        os.environ.setdefault('MKL_NUM_THREADS', str(threads))
+        os.environ.setdefault('OPENBLAS_NUM_THREADS', str(threads))
+        os.environ.setdefault('NUMEXPR_NUM_THREADS', str(threads))
+        # If torch is available, set intra-op and inter-op thread counts conservatively
+        try:
+            import importlib
+            if importlib.util.find_spec('torch'):
+                import torch
+                torch.set_num_threads(threads)
+                # keep inter-op threads small to avoid over-subscription
+                torch.set_num_interop_threads(1)
+        except Exception:
+            pass
 
     base_meta = {
         "product": PRODUCT,

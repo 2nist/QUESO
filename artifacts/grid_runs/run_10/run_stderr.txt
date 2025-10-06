@@ -1,0 +1,60 @@
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=576
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=288
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=144
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=72
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=690
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=345
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=173
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=640
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=320
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=160
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=80
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=704
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=352
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=176
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=88
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=576
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=288
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=144
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=72
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=690
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=345
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=173
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=640
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=320
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=160
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=80
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=704
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=352
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=176
+  warnings.warn(
+C:\Users\CraftAuto-Sales\webrail\.venv\lib\site-packages\librosa\core\spectrum.py:266: UserWarning: n_fft=1024 is too large for input signal of length=88
+  warnings.warn(

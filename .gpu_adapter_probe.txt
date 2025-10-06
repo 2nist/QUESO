@@ -1,0 +1,1 @@
+{"Name":"Intel(R) Iris(R) Xe Graphics","PNPDeviceID":"PCI\\VEN_8086&DEV_9A49&SUBSYS_8846103C&REV_01\\3&11583659&2&10","DriverVersion":"32.0.101.6651"}

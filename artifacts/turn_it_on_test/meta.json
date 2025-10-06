@@ -1,0 +1,1 @@
+{"product": "queso", "schema": "queso-artifacts@1", "input": "analysis\\tests\\autotest\\mp3\\Turn It On.mp3", "opts": {"lyrics": true, "stems": false, "chords": true, "sections": true, "tempo": true, "preset": "low_cpu"}, "started": 1759688352.975393, "progress": 100, "phase": "done", "status": "done", "updated": 1759688784.4950275, "ended": 1759688784.4930198}

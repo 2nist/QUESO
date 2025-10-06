@@ -6,7 +6,14 @@
     <title>QUESO — Creamery Lab</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <!-- Static placeholder: will show if the Svelte app fails to mount -->
+      <div id="lab-debug" style="font-family:system-ui,Segoe UI,Arial; padding:1rem; color:#333">Creamery Lab loading... (static fallback)</div>
+    </div>
+    <script>
+      // helpful debug flag visible in the page for quick checks
+      window.__LAB_FALLBACK_PRESENT = true;
+    </script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

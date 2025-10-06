@@ -1,0 +1,40 @@
+/* Global Lab styles and theme tokens */
+:root {
+  /* Badge tokens (light) */
+  --lab-badge-bg: #f3f4f6;
+  --lab-badge-foreground: #111827;
+  --lab-badge-border: #e5e7eb;
+
+  /* Panel tokens */
+  --lab-panel-bg: #f8fafc;
+  --lab-panel-foreground: #0f172a;
+
+  /* Accent */
+  --lab-accent: #3b82f6;
+}
+
+.dark {
+  /* Badge tokens (dark) */
+  --lab-badge-bg: #111827;
+  --lab-badge-foreground: #f8fafc;
+  --lab-badge-border: rgba(255,255,255,0.06);
+
+  --lab-panel-bg: #0b0b0c;
+  --lab-panel-foreground: #e6eef8;
+
+  --lab-accent: #3b82f6;
+}
+
+/* Utility mappings used by components */
+:root {
+  --badge-bg: var(--lab-badge-bg);
+  --badge-foreground: var(--lab-badge-foreground);
+  --badge-border: var(--lab-badge-border);
+  --badge-bg-dark: var(--lab-badge-bg);
+  --badge-foreground-dark: var(--lab-badge-foreground);
+}
+
+body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+
+/* small sensible defaults for Lab panels */
+.lab-panel { background: var(--lab-panel-bg); color: var(--lab-panel-foreground); border-radius: 8px; padding: .5rem; }

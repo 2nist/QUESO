@@ -1,0 +1,14 @@
+nvidia-smi not found on PATH
+`n== nvcc --version ==
+nvcc not found or returned error
+`n== python torch probe ==
+Using python: C:\Users\CraftAuto-Sales\webrail\.venv\Scripts\python.exe
+torch_version: 2.8.0+cpu
+cuda_available: False
+cuda_version: None
+\n== python explicit probe run ==
+PY_OK
+pre-import ok
+torch_version: 2.8.0+cpu
+cuda_available: False
+cuda_version: None

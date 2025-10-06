@@ -18,3 +18,4 @@ external/ffmpeg/ffmpeg-8.0-essentials_build/bin/*.exe
 # Python
 .venv/
 **/__pycache__/
+server-node/data/

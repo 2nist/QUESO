@@ -1,0 +1,80 @@
+{
+  "duration": 281.84,
+  "segments": [
+    {
+      "index": 0,
+      "start": 0.0,
+      "end": 15.16,
+      "duration": 15.16,
+      "label": "Intro",
+      "start_bar": 0,
+      "end_bar": 7,
+      "pattern_id": 0,
+      "pattern_symbol": "A",
+      "chords": [],
+      "progression_signature": null,
+      "roman_progression": [],
+      "nashville_progression": []
+    },
+    {
+      "index": 1,
+      "start": 15.16,
+      "end": 29.51,
+      "duration": 14.35,
+      "label": "Verse",
+      "start_bar": 7,
+      "end_bar": 13,
+      "pattern_id": 0,
+      "pattern_symbol": "A",
+      "chords": [],
+      "progression_signature": null,
+      "roman_progression": [],
+      "nashville_progression": []
+    },
+    {
+      "index": 2,
+      "start": 29.51,
+      "end": 59.72,
+      "duration": 30.21,
+      "label": "Verse",
+      "start_bar": 13,
+      "end_bar": 28,
+      "pattern_id": 0,
+      "pattern_symbol": "A",
+      "chords": [],
+      "progression_signature": null,
+      "roman_progression": [],
+      "nashville_progression": []
+    },
+    {
+      "index": 3,
+      "start": 59.72,
+      "end": 281.84,
+      "duration": 222.12,
+      "label": "Intro",
+      "start_bar": 28,
+      "end_bar": 133,
+      "pattern_id": 0,
+      "pattern_symbol": "A",
+      "chords": [],
+      "progression_signature": null,
+      "roman_progression": [],
+      "nashville_progression": []
+    }
+  ],
+  "pattern_consistency": {},
+  "roman_consistency": {},
+  "nashville_consistency": {},
+  "chords_attached": false,
+  "key": null,
+  "processing": {
+    "bar_align": false,
+    "spectral_validate": true,
+    "validation_thresholds": {
+      "energy_drop_db": 2.0,
+      "centroid_jump_hz": 100.0,
+      "chroma_max_corr": 0.9
+    },
+    "tempo_metadata_found": false
+  }
+}

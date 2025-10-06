@@ -1,6 +1,12 @@
 <script>
-  import { createEventDispatcher, onMount } from "svelte";
-  import { getMidiOutputs, sendNoteOff, sendNoteOn } from "./webmidi.js";
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
+  import {
+    getMidiInputs,
+    getMidiOutputs,
+    sendNoteOff,
+    sendNoteOn,
+    setMidiListener,
+  } from "./webmidi.js";
 
   export let tempo = 120;
   export let steps = 16; // total steps per pattern (allows odd values)
@@ -19,8 +25,10 @@
   let nextNoteTime = 0;
   let selectedMidi = null;
   let midiOutputs = [];
+  let midiInputs = [];
   let selectedMidiId = null;
   let synthNode = null;
+  let listeningLane = null;
 
   function _ensure() {
     if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -135,8 +143,6 @@
       selectedMidi = midiOutputs[0];
       selectedMidiId = selectedMidi.id;
     }
-    let midiInputs = []
-    let listeningLane = null
     // load lanes config
     try {
       const raw = localStorage.getItem("lab.lanesConfig");
@@ -161,26 +167,42 @@
       // fallback to oscillator scheduler if worklet unavailable
       synthNode = null;
     }
-  });
-    // MIDI inputs for learn
+
+    // MIDI inputs for learn — register listeners and keep removers for cleanup
     try {
-      midiInputs = await getMidiInputs()
+      midiInputs = await getMidiInputs();
+      const removers = [];
       if (midiInputs.length) {
         // attach a default listener that forwards to learn handler
-        midiInputs.forEach(inp => setMidiListener(inp, (data) => {
-          if (listeningLane != null) {
-            // message format: [status, note, velocity]
-            const note = data && data[1]
-            if (note != null) {
-              lanes[listeningLane].midiNote = note
-              try { localStorage.setItem('lab.lanesConfig', JSON.stringify(lanes)) } catch(e){}
-              listeningLane = null
+        midiInputs.forEach((inp) => {
+          const remover = setMidiListener(inp, (data) => {
+            if (listeningLane != null) {
+              const note = data && data[1];
+              if (note != null) {
+                lanes[listeningLane].midiNote = note;
+                try {
+                  localStorage.setItem(
+                    "lab.lanesConfig",
+                    JSON.stringify(lanes),
+                  );
+                } catch (e) {}
+                listeningLane = null;
+              }
             }
-          }
-        }))
+          });
+          removers.push(remover);
+        });
       }
+      onDestroy(() => {
+        removers.forEach((r) => {
+          try {
+            r();
+          } catch (e) {}
+        });
+      });
     } catch (e) {}
-
+  });
+  // MIDI learn/listener registration is handled inside onMount
 </script>
 
 <div>
@@ -228,10 +250,16 @@
               style="inline-size:4rem"
             />
           </label>
-            <button style="margin-inline-start:.5rem" on:click={() => { listeningLane = idx }}>Learn</button>
-            {#if listeningLane === idx}
-              <span style="margin-inline-start:.25rem">Listening for MIDI...</span>
-            {/if}
+          <button
+            style="margin-inline-start:.5rem"
+            on:click={() => {
+              listeningLane = idx;
+            }}>Learn</button
+          >
+          {#if listeningLane === idx}
+            <span style="margin-inline-start:.25rem">Listening for MIDI...</span
+            >
+          {/if}
         </div>
       {/each}
     </div>

@@ -5,29 +5,22 @@
   "version": "0.1.0",
   "scripts": {
     "api": "node server-node/src/node_api_server.js",
-    "dev": "concurrently -k -n api,web -c green,cyan \"npm:api\" \"vite\"",
-    "dev:lab": "cross-env LAB_MODE=1 concurrently -k -n api,web -c green,cyan \"npm:api\" \"vite\"",
+  "dev": "concurrently -k -n api,web -c green,cyan \"npm:api\" \"vite\"",
+  "lab:dev": "concurrently -k -n api,lab -c green,magenta \"npm:api\" \"npm:lab:client\"",
+  "lab:install-prereqs": "pwsh -NoProfile -ExecutionPolicy Bypass -File server-node/scripts/install_lab_prereqs.ps1",
+  "lab:smoke": "node server-node/scripts/lab_smoke_test.js",
+  "lab:rot": "node server-node/scripts/generate_files_rot.js",
+  "lab:client": "vite --config client/lab/vite.config.js --port 5174",
     "build": "vite build",
-  "preview": "vite preview",
-    "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/postcss": "^4.1.14",
-    "@tailwindcss/typography": "^0.5.19",
-    "autoprefixer": "^10.4.21",
     "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.18"
+    "express": "^4.19.2"
   },
   "devDependencies": {
+    "concurrently": "^9.0.1",
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
-  "concurrently": "^9.0.1",
-  "cross-env": "^7.0.3",
-  "dotenv": "^16.4.5",
-    "jest": "^29.7.0",
-    "supertest": "^6.3.3",
     "svelte": "^4.2.18",
     "vite": "^5.4.8"
   }
